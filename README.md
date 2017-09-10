@@ -1,9 +1,9 @@
-Instalar Gorilla 
+Instalar Docker
 ```
-go get github.com/gorilla/mux
+Instalar docker-compose
 ```
 
-Correr proyecto 
+$ docker-compose build
 ```
-go run main.go
+$ docker-compose up
 ```
