@@ -3,9 +3,19 @@ package main
 import (
 	"github.com/gorilla/mux"
 	"fmt"
+	"log"
+	"encoding/json"
 	"net/http"
 	"io/ioutil"
+	"gopkg.in/mgo.v2"
+	"gopkg.in/mgo.v2/bson"
 )
+
+type Person struct {
+        Name string
+        Phone string
+}
+
 ///Users/usuario/go/src/github.com/gorilla/mux/
 func HomeHandler(w http.ResponseWriter, r *http.Request){
 	http.ServeFile(w, r, "./static/index.html")
@@ -15,18 +25,85 @@ func getAllPosts(w http.ResponseWriter, r *http.Request){
 	if errReques != nil {
 		w.WriteHeader(405)
 		w.Write([]byte("error API"))
-		return 
+		return
 	}
 	responseData, errParse := ioutil.ReadAll(resp.Body)
 	if errParse != nil {
 		w.WriteHeader(405)
 		w.Write([]byte("error parsing"))
-		return 
+		return
 	}
 	responseString := string(responseData)
 	w.WriteHeader(200)
 	w.Write([]byte(responseString))
 }
+
+func getAll(w http.ResponseWriter, r *http.Request){
+
+
+	// fmt.Println("r: ", usuario.Name)
+	// session, err := mgo.Dial("mongodb://admin:admin@ds115671.mlab.com:15671/dojogo")
+	session, err := mgo.Dial("mongodb:27017/dojogo")
+	if err != nil {
+					panic(err)
+	}
+	defer session.Close()
+
+	// Optional. Switch the session to a monotonic behavior.
+	session.SetMode(mgo.Monotonic, true)
+	var usuarios []Person
+	c := session.DB("dojogo").C("people")
+	err = c.Find(bson.M{}).All(&usuarios)
+	respuesta, err :=  json.Marshal(usuarios)
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+	w.Write(respuesta)
+
+}
+
+func create(w http.ResponseWriter, r *http.Request){
+	var usuario Person
+	if r.Body == nil {
+		w.WriteHeader(400)
+		w.Write([]byte("Ingresar los datos del usuario"))
+		return
+	}
+	err := json.NewDecoder(r.Body).Decode(&usuario)
+	if err != nil {
+		fmt.Println("Error Decoder")
+		w.WriteHeader(400)
+		w.Write([]byte("Ingresar los datos del usuario"))
+		return
+	}
+
+	// fmt.Println("r: ", usuario.Name)
+	// session, err := mgo.Dial("mongodb://admin:admin@ds115671.mlab.com:15671/dojogo")
+	session, err := mgo.Dial("mongodb:27017/dojogo")
+	if err != nil {
+					panic(err)
+	}
+	defer session.Close()
+
+	// Optional. Switch the session to a monotonic behavior.
+	session.SetMode(mgo.Monotonic, true)
+
+	c := session.DB("dojogo").C("people")
+	err = c.Insert(&Person{usuario.Name, usuario.Phone})
+	if err != nil {
+					log.Fatal(err)
+	}
+
+	result := Person{}
+	err = c.Find(bson.M{"name": "Camilo"}).One(&result)
+	if err != nil {
+					log.Fatal(err)
+	}
+
+	fmt.Println("Phone:", result.Name)
+	// return result
+	w.WriteHeader(200)
+}
+
 func getPost(w http.ResponseWriter, r *http.Request){
 	vars := mux.Vars(r)
 	postId := vars["postId"]
@@ -35,18 +112,39 @@ func getPost(w http.ResponseWriter, r *http.Request){
 	if errReques != nil {
 		w.WriteHeader(405)
 		w.Write([]byte("error API"))
-		return 
+		return
 	}
 	responseData, errParse := ioutil.ReadAll(resp.Body)
 	if errParse != nil {
 		w.WriteHeader(405)
 		w.Write([]byte("error parsing"))
-		return 
+		return
 	}
 	responseString := string(responseData)
     w.WriteHeader(200)
 	w.Write([]byte(responseString))
 }
+
+func getByName(w http.ResponseWriter, r *http.Request){
+	vars := mux.Vars(r)
+	name := vars["userName"]
+	session, err := mgo.Dial("mongodb:27017/dojogo")
+	if err != nil {
+					panic(err)
+	}
+	defer session.Close()
+
+	// Optional. Switch the session to a monotonic behavior.
+	session.SetMode(mgo.Monotonic, true)
+	var usuarios []Person
+	c := session.DB("dojogo").C("people")
+	err = c.Find(bson.M{"Name": name}).All(&usuarios)
+	respuesta, err :=  json.Marshal(usuarios)
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+	w.Write(respuesta)
+}
+
 func TestHandler(w http.ResponseWriter, r *http.Request){
 	// response, _ := json.Marshal(payload)
 	// w.Header().Set("Content-Type", "application/json")
@@ -64,6 +162,9 @@ func main(){
     r.HandleFunc("/", HomeHandler).Methods("GET")
     r.HandleFunc("/get-all-posts", getAllPosts).Methods("GET")
     r.HandleFunc("/get-post/{postId}", getPost).Methods("GET")
+		r.HandleFunc("/get-all-users", getAll).Methods("GET")
+		r.HandleFunc("/user/{userName}", getByName).Methods("GET")
+		r.HandleFunc("/create", create).Methods("POST")
     http.Handle("/", r)
 	http.ListenAndServe("0.0.0.0:8080", nil)
 }

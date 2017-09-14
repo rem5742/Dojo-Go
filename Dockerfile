@@ -8,6 +8,8 @@ WORKDIR /go/src/github.com/camiloperezv/dojo_go/app
 
 RUN go get ./
 RUN go get -u github.com/gorilla/mux
+RUN go get gopkg.in/mgo.v2
+RUN go get gopkg.in/mgo.v2/bson
 RUN go build
 
 CMD if [ ${APP_ENV} = production ]; \
@@ -17,5 +19,5 @@ CMD if [ ${APP_ENV} = production ]; \
 	go get github.com/pilu/fresh && \
 	fresh; \
 	fi
-	
+
 EXPOSE 8080
