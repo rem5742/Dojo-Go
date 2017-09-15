@@ -62,21 +62,21 @@ func getAll(w http.ResponseWriter, r *http.Request){
 }
 
 func create(w http.ResponseWriter, r *http.Request){
-	r.ParseForm()
 	var usuario Person
-	if r.Form == nil {
+	if r.Body == nil {
 		w.WriteHeader(400)
 		w.Write([]byte("Ingresar los datos del usuario"))
 		return
 	}
-	fmt.Println("username:", r.Form["username"])
-	fmt.Println("phone:", r.Form["phone"])
-	// fmt.Println(string(r.Form["username"]))
-	if r.Form["username"] == nil || r.Form["phone"] == nil{
+	err := json.NewDecoder(r.Body).Decode(&usuario)
+	if err != nil {
+		fmt.Println("Error Decoder")
 		w.WriteHeader(400)
-		w.Write([]byte("parametros invalidos"))
+		w.Write([]byte("Ingresar los datos del usuario"))
 		return
 	}
+
+	// fmt.Println("r: ", usuario.Name)
 	// session, err := mgo.Dial("mongodb://admin:admin@ds115671.mlab.com:15671/dojogo")
 	session, err := mgo.Dial("mongodb:27017/dojogo")
 	if err != nil {
