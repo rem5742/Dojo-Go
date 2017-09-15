@@ -63,7 +63,7 @@ func getAll(w http.ResponseWriter, r *http.Request){
 
 func create(w http.ResponseWriter, r *http.Request){
 	r.ParseForm()
-	// var usuario Person
+	var usuario Person
 	if r.Form == nil {
 		w.WriteHeader(400)
 		w.Write([]byte("Ingresar los datos del usuario"))
@@ -71,7 +71,7 @@ func create(w http.ResponseWriter, r *http.Request){
 	}
 	fmt.Println("username:", r.Form["username"])
 	fmt.Println("phone:", r.Form["phone"])
-	fmt.Println(string(r.Form["username"]))
+	// fmt.Println(string(r.Form["username"]))
 	if r.Form["username"] == nil || r.Form["phone"] == nil{
 		w.WriteHeader(400)
 		w.Write([]byte("parametros invalidos"))
