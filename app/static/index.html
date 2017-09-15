@@ -117,15 +117,17 @@
                 </div>
                 <div class="row">
                     <div class="col-md-8">
-                        <form name="sentMessage" id="formoid" novalidate=""  action="/create" method="POST" enctype='application/json'>
+                        <form action="/create" method="POST">
                             <div class="row">
                                 <div class="col-md-6 col-md-offset-6">
                                     <div class="form-group">
-                                        <input type="text" class="form-control" placeholder="Your Name *" id="name" name="name" required="" data-validation-required-message="Please enter your name.">
+                                        <label for="">Nombre</label>
+                                        <input type="text" class="form-control" placeholder="Your Name *" id="name" name="username" required="">
                                         <p class="help-block text-danger"></p>
                                     </div>
                                     <div class="form-group">
-                                        <input type="tel" class="form-control" placeholder="Your Phone *" id="phone" name="phone" required="" data-validation-required-message="Please enter your phone number.">
+                                        <label for="">Telefono</label>
+                                        <input type="tel" class="form-control" placeholder="Your Phone *" id="phone" name="phone" required="">
                                         <p class="help-block text-danger"></p>
                                     </div>
                                 </div>
@@ -149,39 +151,6 @@
                 </div>
             </div>
         </section>
-
-
-        <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
-
-        <script type='text/javascript'>
-          /* attach a submit handler to the form */
-          $("#formoid").submit(function(event) {
-
-            /* stop form from submitting normally */
-            event.preventDefault();
-
-            /* get the action attribute from the <form action=""> element */
-            var $form = $( this ),
-                url = $form.attr( 'action' );
-
-            alert('hola ' + $('#name').val())
-            /* Send the data using post with element id name and name2*/
-            var posting = $.post({
-                type: 'POST',
-                url: '/create',
-                data: '{"name":' + $('#name') + '"phone":' + $('phone'), // or JSON.stringify ({name: 'jonas'}),
-                //success: function(data) { alert('data: ' + data); },
-                contentType: "application/json",
-                dataType: 'json'
-            });
-
-            /* Alerts the results */
-            posting.done(function( data ) {
-              alert('success');
-            });
-          });
-      </script>
-
 </body>
 
 </html>

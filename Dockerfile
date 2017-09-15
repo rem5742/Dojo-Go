@@ -3,14 +3,14 @@ FROM golang
 ARG app_env
 ENV APP_ENV $app_env
 
-COPY ./app /go/src/github.com/camiloperezv/dojo_go/app
 WORKDIR /go/src/github.com/camiloperezv/dojo_go/app
+COPY ./app .
 
-RUN go get ./
-RUN go get -u github.com/gorilla/mux
-RUN go get gopkg.in/mgo.v2
-RUN go get gopkg.in/mgo.v2/bson
-RUN go build
+RUN go get ./ \
+	&& go get -u github.com/gorilla/mux \
+	&& go get gopkg.in/mgo.v2 \
+	&& go get gopkg.in/mgo.v2/bson \
+	&& go build
 
 CMD if [ ${APP_ENV} = production ]; \
 	then \

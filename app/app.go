@@ -62,21 +62,21 @@ func getAll(w http.ResponseWriter, r *http.Request){
 }
 
 func create(w http.ResponseWriter, r *http.Request){
-	var usuario Person
-	if r.Body == nil {
+	r.ParseForm()
+	// var usuario Person
+	if r.Form == nil {
 		w.WriteHeader(400)
 		w.Write([]byte("Ingresar los datos del usuario"))
 		return
 	}
-	err := json.NewDecoder(r.Body).Decode(&usuario)
-	if err != nil {
-		fmt.Println("Error Decoder")
+	fmt.Println("username:", r.Form["username"])
+	fmt.Println("phone:", r.Form["phone"])
+	fmt.Println(string(r.Form["username"]))
+	if r.Form["username"] == nil || r.Form["phone"] == nil{
 		w.WriteHeader(400)
-		w.Write([]byte("Ingresar los datos del usuario"))
+		w.Write([]byte("parametros invalidos"))
 		return
 	}
-
-	// fmt.Println("r: ", usuario.Name)
 	// session, err := mgo.Dial("mongodb://admin:admin@ds115671.mlab.com:15671/dojogo")
 	session, err := mgo.Dial("mongodb:27017/dojogo")
 	if err != nil {
@@ -162,9 +162,9 @@ func main(){
     r.HandleFunc("/", HomeHandler).Methods("GET")
     r.HandleFunc("/get-all-posts", getAllPosts).Methods("GET")
     r.HandleFunc("/get-post/{postId}", getPost).Methods("GET")
-		r.HandleFunc("/get-all-users", getAll).Methods("GET")
-		r.HandleFunc("/user/{userName}", getByName).Methods("GET")
-		r.HandleFunc("/create", create).Methods("POST")
+	r.HandleFunc("/get-all-users", getAll).Methods("GET")
+	r.HandleFunc("/user/{userName}", getByName).Methods("GET")
+	r.HandleFunc("/create", create).Methods("POST")
     http.Handle("/", r)
 	http.ListenAndServe("0.0.0.0:8080", nil)
 }
