@@ -14,6 +14,9 @@ import (
 type Person struct {
         Name string
         Phone string
+        Email string
+        Description string
+        Id string
 }
 
 ///Users/usuario/go/src/github.com/gorilla/mux/
@@ -88,18 +91,18 @@ func create(w http.ResponseWriter, r *http.Request){
 	session.SetMode(mgo.Monotonic, true)
 
 	c := session.DB("dojogo").C("people")
-	err = c.Insert(&Person{usuario.Name, usuario.Phone})
+	err = c.Insert(&Person{usuario.Name, usuario.Phone, usuario.Email, usuario.Description, usuario.Id})
 	if err != nil {
 					log.Fatal(err)
 	}
 
-	result := Person{}
-	err = c.Find(bson.M{"name": "Camilo"}).One(&result)
-	if err != nil {
-					log.Fatal(err)
-	}
+	// result := Person{}
+	// err = c.Find(bson.M{"name": "Camilo"}).One(&result)
+	// if err != nil {
+	// 				log.Fatal(err)
+	// }
 
-	fmt.Println("Phone:", result.Name)
+	// fmt.Println("Phone:", result.Name)
 	// return result
 	w.WriteHeader(200)
 }
